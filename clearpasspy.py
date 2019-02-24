@@ -10,6 +10,13 @@ class ClearPass():
             'Content-Type': 'application/json',
             'Authorization': "{} {}".format('Bearer', self.access_token)
         }
+    def api(self, service):
+        ''' Calls specified API service endpoint. Only supports GET methods '''
+        url = 'https://' + self.server + '/api' + service
+        r = requests.get(url, headers=self.headers)
+        json_r = json.loads(r.text)
+        return json_r['_embedded']
+
     def online_status(self, macaddress):
         ''' Returns true/false if endpoint is online '''
         is_online = False

@@ -39,4 +39,7 @@ print(CPPM.get_endpoints(10))
 print('Endpoint: {}'.format(CPPM.get_endpoint(4814)))
 Endpoint {'id': 4814, 'mac_address': '0000e349473f', 'status': 'Unknown', 'attributes': {}, '_links': {'self': {'href': 'https://clearpass.server.com/api/endpoint/4814'}}}
 
+# Calls API endpoint. Only supports GET method
+print('API Call: {}'.format(CPPM.api('/auth-method')))
+
 ```
