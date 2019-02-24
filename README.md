@@ -1,6 +1,7 @@
 # Python class for Aruba's Clearpass Policy Manager
 [https://www.emerickcc.com](https://www.emerickcc.com)
-[https://arubanetworks.com](Aruba Networks)
+
+[Aruba Networks](https://arubanetworks.com)
 
 ## Examples
 ```python
