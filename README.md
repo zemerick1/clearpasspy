@@ -5,7 +5,7 @@
 
 ## Examples
 ```python
-import clearpasspy
+from clearpasspy import Clearpass
 # Client_ID: clearpassapi
 # Grant Type: client_credentials OR password
 # client Secret: <CLIENT SECRET FROM UI>
@@ -23,7 +23,7 @@ data = {
 }
 
 # When you create the object, it automatically authenticates you, and stores the access token for subsequent calls.
-CPPM = clearpasspy.ClearPass(data)
+CPPM = ClearPass(data)
 print(CPPM.access_token)
 3ea61fd137df506515ae45f0887df1163c4080f9
 

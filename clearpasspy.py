@@ -10,22 +10,42 @@ class ClearPass():
             'Content-Type': 'application/json',
             'Authorization': "{} {}".format('Bearer', self.access_token)
         }
-    def api(self, service):
-        ''' Calls specified API service endpoint. Only supports GET methods '''
+    def api_get(self, service):
+        ''' Calls specified API service endpoint with GET method.'''
         url = 'https://' + self.server + '/api' + service
-        r = requests.get(url, headers=self.headers)
-        json_r = json.loads(r.text)
-        return json_r['_embedded']
+        try:
+            r = requests.get(url, headers=self.headers)
+            json_r = json.loads(r.text)
+        except Exception as e:
+            print(e)
+        return json_r
+    def api_post(self, service, payload):
+        ''' Calls specified API service endpoint with POST method'''
+        url = 'https://' + self.server + '/api' + service
+        try:
+            r = requests.post(url, headers=self.headers, data=json.dumps(payload))
+            json_r = json.loads(r.text)
+        except Exception as e:
+            print(e)
+        return json_r
+    def api_patch(self, service, payload):
+        ''' Calls specified API service endpoint with PATCH method'''
+        url = 'https://' + self.server + '/api' + service
+        try:
+            r = requests.patch(url, headers=self.headers, data=json.dumps(payload))
+            json_r = json.loads(r.text)
+        except Exception as e:
+            print(e)
+        return json_r
 
     def online_status(self, macaddress):
         ''' Returns true/false if endpoint is online '''
         is_online = False
         token = self.access_token
         macaddress = macaddress.replace(':', '')
-        url = 'https://' + self.server + '/api/insight/endpoint/mac/' + macaddress
-        r = requests.get(url, headers=self.headers)
-        json_r = json.loads(r.text)
-        if json_r['is_online'] == True:
+        service = '/insight/endpoint/mac/' + macaddress
+        endpoint = self.api_get(service)
+        if endpoint['is_online'] == True:
             is_online = True
         else:
             is_online = False
@@ -33,22 +53,15 @@ class ClearPass():
     def get_endpoints(self, limit):
         ''' Returns first 'limit' endpoints '''
         ''' Need this to be more dynamic for limiting results. '''
-        url = 'https://' + self.server + '/api/endpoint?filter=%7B%7D&sort=%2Bid&offset=0&limit=' + str(limit) + '&calculate_count=false'
-        r = requests.get(url, headers=self.headers)
-        json_r = json.loads(r.text)
-        return json_r['_embedded']['items']
-
+        service = '/endpoint?filter=%7B%7D&sort=%2Bid&offset=0&limit=' + str(limit) + '&calculate_count=false'
+        endpoint = self.api_get(service)
+        return endpoint
     def get_endpoint(self, id):
         ''' Returns endpoint based on ID'''
-        url = 'https://' + self.server + '/api/endpoint/' + str(id)
-        r = requests.get(url, headers=self.headers)
-        json_r = json.loads(r.text)
-        if r.status_code == 200:
-            return json_r
-        elif r.status_code == 404:
-            return 'Invalid ID'
-        else:
-            return r.status_code
+        service = '/endpoint/' + str(id)
+        endpoint = self.api_get(service)
+        return endpoint
+    
     def get_access_token(self, data):
         ''' https://github.com/aruba/clearpass-api-python-snippets '''
         """Get OAuth 2.0 access token"""
