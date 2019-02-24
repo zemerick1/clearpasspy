@@ -22,7 +22,7 @@ data = {
     'client' : client_id
 }
 
-# When you create the object, it automatically authenticates you, and store the access token for subsequent calls.
+# When you create the object, it automatically authenticates you, and stores the access token for subsequent calls.
 CPPM = clearpasspy.ClearPass(data)
 print(CPPM.access_token)
 3ea61fd137df506515ae45f0887df1163c4080f9
