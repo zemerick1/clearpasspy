@@ -25,17 +25,28 @@ class ClearPass():
         else:
             is_online = False
         return is_online
-    def get_all_endpoints(self):
-        ''' Returns first 1000 endpoints '''
+    def get_endpoints(self, limit):
+        ''' Returns first 'limit' endpoints '''
         ''' Need this to be more dynamic for limiting results. '''
-        url = 'https://' + self.server + '/api/endpoint?filter=%7B%7D&sort=%2Bid&offset=0&limit=1000&calculate_count=false'
+        url = 'https://' + self.server + '/api/endpoint?filter=%7B%7D&sort=%2Bid&offset=0&limit=' + str(limit) + '&calculate_count=false'
         r = requests.get(url, headers=self.headers)
         json_r = json.loads(r.text)
         return json_r['_embedded']['items']
 
+    def get_endpoint(self, id):
+        ''' Returns endpoint based on ID'''
+        url = 'https://' + self.server + '/api/endpoint/' + str(id)
+        r = requests.get(url, headers=self.headers)
+        json_r = json.loads(r.text)
+        if r.status_code == 200:
+            return json_r
+        elif r.status_code == 404:
+            return 'Invalid ID'
+        else:
+            return r.status_code
     def get_access_token(self, data):
         ''' https://github.com/aruba/clearpass-api-python-snippets '''
-        """Get OAuth 2.0 access token with config from params.cfg"""
+        """Get OAuth 2.0 access token"""
         clearpass_fqdn = data['server']
         oauth_grant_type = data['grant_type']
         oauth_client_id = data['client']
