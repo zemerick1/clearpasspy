@@ -1,8 +1,6 @@
 import requests
 import json
 
-# ENDPOINT URL /api/insight/endpoint/mac/
-
 class ClearPass():
     ''' Login when class is initiated. '''
     def __init__(self, data):
