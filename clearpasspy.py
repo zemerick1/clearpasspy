@@ -8,23 +8,31 @@ class ClearPass():
     def __init__(self, data):
         self.get_access_token(data)
         self.server = data['server']
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Authorization': "{} {}".format('Bearer', self.access_token)
+        }
     def online_status(self, macaddress):
+        ''' Returns true/false if endpoint is online '''
         is_online = False
         token = self.access_token
         macaddress = macaddress.replace(':', '')
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': "{} {}".format('Bearer', token)
-        }
         url = 'https://' + self.server + '/api/insight/endpoint/mac/' + macaddress
-        r = requests.get(url, headers=headers)
-        print(r)
+        r = requests.get(url, headers=self.headers)
         json_r = json.loads(r.text)
         if json_r['is_online'] == True:
             is_online = True
         else:
             is_online = False
         return is_online
+    def get_all_endpoints(self):
+        ''' Returns first 1000 endpoints '''
+        ''' Need this to be more dynamic for limiting results. '''
+        url = 'https://' + self.server + '/api/endpoint?filter=%7B%7D&sort=%2Bid&offset=0&limit=1000&calculate_count=false'
+        r = requests.get(url, headers=self.headers)
+        json_r = json.loads(r.text)
+        return json_r['_embedded']['items']
+
     def get_access_token(self, data):
         ''' https://github.com/aruba/clearpass-api-python-snippets '''
         """Get OAuth 2.0 access token with config from params.cfg"""
