@@ -61,7 +61,7 @@ class ClearPass():
         service = '/endpoint/' + str(id)
         endpoint = self.api_get(service)
         return endpoint
-    
+
     def get_access_token(self, data):
         ''' https://github.com/aruba/clearpass-api-python-snippets '''
         """Get OAuth 2.0 access token"""
