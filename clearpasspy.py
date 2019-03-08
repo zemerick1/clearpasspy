@@ -8,12 +8,14 @@ _LOGGER = logging.getLogger(__name__)
 class ClearPass:
     """Login when class is initiated."""
     def __init__(self, data):
-        self.get_access_token(data)
+        self.access_token = None
+        self._logged_in = self.get_access_token(data)
         self.server = data['server']
-        self.headers = {
-            'Content-Type': 'application/json',
-            'Authorization': "{} {}".format('Bearer', self.access_token)
-        }
+        if self._logged_in:
+            self.headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "{} {}".format('Bearer', self.access_token)
+            }
 
     def api_get(self, service):
         """Call specified API service endpoint with GET method."""
@@ -110,9 +112,11 @@ class ClearPass:
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
             _LOGGER.debug("RESPONSE (CC): {}".format(json_response))
+            logged_in = False
             if r.status_code == 200:
                 self.access_token = json_response['access_token']
+                logged_in = True
             else:
-                self.access_token = r.status_code
-            return self.access_token
+                logged_in = False
+            return logged_in
 
