@@ -1,6 +1,7 @@
 import requests
 import json
 import logging
+import time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,6 +59,22 @@ class ClearPass:
         else:
             is_online = False
         return is_online
+
+    def get_endpoint_mac(self, mac_address):
+        """Return full details of endpoint by mac."""
+
+        mac_address = mac_address.replace(':', '')
+        service = '/insight/endpoint/mac/' + mac_address
+        endpoint = self.api_get(service)
+        return endpoint
+
+    def get_endpoints_time(self, start_time, end_time):
+        """Return endpoints by UNIX timestamp"""
+        start_time = int(start_time)
+        end_time = int(end_time)
+        service = '/insight/endpoint/time-range/' + str(start_time) + '/' + str(end_time)
+        endpoints = self.api_get(service)
+        return endpoints
 
     def get_endpoints(self, limit):
         """Return first 'limit' endpoints."""
