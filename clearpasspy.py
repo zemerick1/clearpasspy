@@ -5,7 +5,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 
-class ClearPass():
+class ClearPass:
     """Login when class is initiated."""
     def __init__(self, data):
         self.get_access_token(data)
@@ -45,12 +45,11 @@ class ClearPass():
             print(e)
         return json_r
 
-    def online_status(self, macaddress):
+    def online_status(self, mac_address):
         """Return true/false if endpoint is online."""
-        is_online = False
-        token = self.access_token
-        macaddress = macaddress.replace(':', '')
-        service = '/insight/endpoint/mac/' + macaddress
+
+        mac_address = mac_address.replace(':', '')
+        service = '/insight/endpoint/mac/' + mac_address
         endpoint = self.api_get(service)
         if endpoint['is_online']:
             is_online = True
@@ -64,9 +63,9 @@ class ClearPass():
         endpoint = self.api_get(service)
         return endpoint
 
-    def get_endpoint(self, id):
+    def get_endpoint(self, endpoint_id):
         """Return endpoint based on ID."""
-        service = '/endpoint/' + str(id)
+        service = '/endpoint/' + str(endpoint_id)
         endpoint = self.api_get(service)
         return endpoint
 
@@ -86,7 +85,11 @@ class ClearPass():
             _LOGGER.debug("PAYLOAD: {}".format(payload))
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
-            return json_response
+            if r.status_code == 200:
+                self.access_token = json_response['access_token']
+            else:
+                self.access_token = r.status_code
+            return self.access_token
 
         if oauth_grant_type == "password" and not oauth_client_secret:
             payload = {'grant_type': oauth_grant_type, 'username': oauth_username, 'password': oauth_password,
@@ -94,7 +97,11 @@ class ClearPass():
             _LOGGER.debug("PAYLOAD: {}".format(payload))
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
-            return json_response
+            if r.status_code == 200:
+                self.access_token = json_response['access_token']
+            else:
+                self.access_token = r.status_code
+            return self.access_token
 
         if oauth_grant_type == "client_credentials":
             payload = {'grant_type': oauth_grant_type, 'client_id': oauth_client_id,
@@ -103,6 +110,9 @@ class ClearPass():
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
             _LOGGER.debug("RESPONSE (CC): {}".format(json_response))
-            self.access_token = json_response['access_token']
-            return json_response
+            if r.status_code == 200:
+                self.access_token = json_response['access_token']
+            else:
+                self.access_token = r.status_code
+            return self.access_token
 
