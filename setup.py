@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="clearpasspy",
-    version="1.1.0",
+    version="1.1.1",
     author="zemerick1",
     author_email="zemerick@emerickcc.com",
     description="ClearPass API Python Library",
