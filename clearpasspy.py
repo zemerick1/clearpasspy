@@ -5,15 +5,17 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 
-class ClearPass():
+class ClearPass:
     """Login when class is initiated."""
     def __init__(self, data):
-        self.get_access_token(data)
+        self.access_token = None
+        self._logged_in = self.get_access_token(data)
         self.server = data['server']
-        self.headers = {
-            'Content-Type': 'application/json',
-            'Authorization': "{} {}".format('Bearer', self.access_token)
-        }
+        if self._logged_in:
+            self.headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "{} {}".format('Bearer', self.access_token)
+            }
 
     def api_get(self, service):
         """Call specified API service endpoint with GET method."""
@@ -45,12 +47,11 @@ class ClearPass():
             print(e)
         return json_r
 
-    def online_status(self, macaddress):
+    def online_status(self, mac_address):
         """Return true/false if endpoint is online."""
-        is_online = False
-        token = self.access_token
-        macaddress = macaddress.replace(':', '')
-        service = '/insight/endpoint/mac/' + macaddress
+
+        mac_address = mac_address.replace(':', '')
+        service = '/insight/endpoint/mac/' + mac_address
         endpoint = self.api_get(service)
         if endpoint['is_online']:
             is_online = True
@@ -64,9 +65,9 @@ class ClearPass():
         endpoint = self.api_get(service)
         return endpoint
 
-    def get_endpoint(self, id):
+    def get_endpoint(self, endpoint_id):
         """Return endpoint based on ID."""
-        service = '/endpoint/' + str(id)
+        service = '/endpoint/' + str(endpoint_id)
         endpoint = self.api_get(service)
         return endpoint
 
@@ -76,25 +77,40 @@ class ClearPass():
         oauth_grant_type = data['grant_type']
         oauth_client_id = data['client']
         oauth_client_secret = data['secret']
+
         url = "https://" + clearpass_fqdn + "/api/oauth"
 
         headers = {'Content-Type': 'application/json'}
 
         if oauth_grant_type == "password":
+            oauth_username = data['username']
+            oauth_password = data['password']
             payload = {'grant_type': oauth_grant_type, 'username': oauth_username, 'password': oauth_password,
                        'client_id': oauth_client_id, 'client_secret': oauth_client_secret}
             _LOGGER.debug("PAYLOAD: {}".format(payload))
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
-            return json_response
+            if r.status_code == 200:
+                self.access_token = json_response['access_token']
+                logged_in = True
+            else:
+                logged_in = False
+            return logged_in
 
         if oauth_grant_type == "password" and not oauth_client_secret:
+            oauth_username = data['username']
+            oauth_password = data['password']
             payload = {'grant_type': oauth_grant_type, 'username': oauth_username, 'password': oauth_password,
                        'client_id': oauth_client_id}
             _LOGGER.debug("PAYLOAD: {}".format(payload))
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
-            return json_response
+            if r.status_code == 200:
+                self.access_token = json_response['access_token']
+                logged_in = True
+            else:
+                logged_in = False
+            return logged_in
 
         if oauth_grant_type == "client_credentials":
             payload = {'grant_type': oauth_grant_type, 'client_id': oauth_client_id,
@@ -103,6 +119,10 @@ class ClearPass():
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
             _LOGGER.debug("RESPONSE (CC): {}".format(json_response))
-            self.access_token = json_response['access_token']
-            return json_response
+            if r.status_code == 200:
+                self.access_token = json_response['access_token']
+                logged_in = True
+            else:
+                logged_in = False
+            return logged_in
 
