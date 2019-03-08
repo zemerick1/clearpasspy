@@ -77,11 +77,14 @@ class ClearPass:
         oauth_grant_type = data['grant_type']
         oauth_client_id = data['client']
         oauth_client_secret = data['secret']
+
         url = "https://" + clearpass_fqdn + "/api/oauth"
 
         headers = {'Content-Type': 'application/json'}
 
         if oauth_grant_type == "password":
+            oauth_username = data['username']
+            oauth_password = data['password']
             payload = {'grant_type': oauth_grant_type, 'username': oauth_username, 'password': oauth_password,
                        'client_id': oauth_client_id, 'client_secret': oauth_client_secret}
             _LOGGER.debug("PAYLOAD: {}".format(payload))
@@ -89,11 +92,14 @@ class ClearPass:
             json_response = json.loads(r.text)
             if r.status_code == 200:
                 self.access_token = json_response['access_token']
+                logged_in = True
             else:
-                self.access_token = r.status_code
-            return self.access_token
+                logged_in = False
+            return logged_in
 
         if oauth_grant_type == "password" and not oauth_client_secret:
+            oauth_username = data['username']
+            oauth_password = data['password']
             payload = {'grant_type': oauth_grant_type, 'username': oauth_username, 'password': oauth_password,
                        'client_id': oauth_client_id}
             _LOGGER.debug("PAYLOAD: {}".format(payload))
@@ -101,9 +107,10 @@ class ClearPass:
             json_response = json.loads(r.text)
             if r.status_code == 200:
                 self.access_token = json_response['access_token']
+                logged_in = True
             else:
-                self.access_token = r.status_code
-            return self.access_token
+                logged_in = False
+            return logged_in
 
         if oauth_grant_type == "client_credentials":
             payload = {'grant_type': oauth_grant_type, 'client_id': oauth_client_id,
@@ -112,7 +119,6 @@ class ClearPass:
             r = requests.post(url, headers=headers, json=payload)
             json_response = json.loads(r.text)
             _LOGGER.debug("RESPONSE (CC): {}".format(json_response))
-            logged_in = False
             if r.status_code == 200:
                 self.access_token = json_response['access_token']
                 logged_in = True
