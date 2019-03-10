@@ -59,6 +59,12 @@ class ClearPass:
             is_online = False
         return is_online
 
+    def get_endpoint_range(self, range):
+        """Return full details of endpoints by ip range."""
+        service = '/insight/endpoint/ip-range/' + range
+        endpoint = self.api_get(service)
+        return endpoint
+
     def get_endpoint_mac(self, mac_address):
         """Return full details of endpoint by mac."""
 
