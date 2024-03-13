@@ -5,7 +5,7 @@
 
 ## Examples
 ```python
-from clearpasspy import Clearpass
+from clearpasspy import ClearPass
 # Client_ID: clearpassapi
 # Grant Type: client_credentials OR password
 # client Secret: <CLIENT SECRET FROM UI>
